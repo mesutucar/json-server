@@ -1,7 +1,7 @@
 const express = require('express')
 const write = require('./write')
 const getFullURL = require('./get-full-url')
-var jsonpatch = require('jsonpatch')
+const jsonpatch = require('jsonpatch')
 
 module.exports = (db, name) => {
   const router = express.Router()
