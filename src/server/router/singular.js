@@ -1,6 +1,7 @@
 const express = require('express')
 const write = require('./write')
 const getFullURL = require('./get-full-url')
+var jsonpatch = require('jsonpatch')
 
 module.exports = (db, name) => {
   const router = express.Router()
@@ -21,15 +22,17 @@ module.exports = (db, name) => {
     next()
   }
 
-  function update (req, res, next) {
-    if (req.method === 'PUT') {
-      db.set(name, req.body)
+  function updateFull (req, res, next) {
+    db.set(name, req.body)
         .value()
-    } else {
-      db.get(name)
-        .assign(req.body)
+
+    res.locals.data = db.get(name).value()
+    next()
+  }
+
+  function updatePartial (req, res, next) {
+    db.set(name, jsonpatch.apply_patch(db.get(name).value(), req.body))
         .value()
-    }
 
     res.locals.data = db.get(name).value()
     next()
@@ -40,8 +43,8 @@ module.exports = (db, name) => {
   router.route('/')
     .get(show)
     .post(create, w)
-    .put(update, w)
-    .patch(update, w)
+    .put(updateFull, w)
+    .patch(updatePartial, w)
 
   return router
 }
