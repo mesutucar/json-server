@@ -31,6 +31,7 @@ module.exports = (db, name) => {
   }
 
   function updatePartial (req, res, next) {
+    console.log('- PATCH: ', req.body)
     db.set(name, jsonpatch.apply_patch(db.get(name).value(), req.body))
         .value()
 
